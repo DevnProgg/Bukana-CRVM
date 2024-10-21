@@ -11,6 +11,7 @@ private:
 	str id;
 	string_vector _Options = { "->  Login",
 		"->  Register Child",
+		"->  Back"
 		"->  Medical Report",
 		"->  Vaccine Report",
 		"->  Print Medical Report",
@@ -31,49 +32,77 @@ public:
 	void setId(str id) {
 		this->id = id;
 	}
+	str getID() { return id; }
+	str getUser() { return UserType;  }
 
 	void onOptionSelected(int option) override {
+
+		str ID;
+
 		switch (option) {
+
 		case 0:
-			_login.login();
+
+			ID = _login.Login();
+			setId(ID);
 			process++;
 			break;
+
 		case 1:
-			_registrations.Register_Child_UI();
-			process++;
+
+			_registrations.registerChildUI();
+			process = 0;
 			break;
+
 		case 2:
-			_medicals.DisplayMedicalReport();
-			process++;
+
+			process = 0;
 			break;
+
 		case 3:
-			_vaccines.DisplayVaccineReport();
-			process++;
+
+			_medicals.displayMedicalReport(getID());
 			break;
+
 		case 4:
-			_medicals.PrintMedicalReport();
-			process++;
+
+			_vaccines.displayVaccineReport(getID());
 			break;
+
 		case 5:
-			_vaccines.PrintVaccineReport();
-			process++;
+
+			_medicals.printMedicalReport(getID(), getUser());
 			break;
+
 		case 6:
-			return;
+
+			_vaccines.printVaccineReport(getUser(), "child");
+			break;
+
+		case 7:
+
+			process = 0;
+			break;
+
 		default:
+
 			std::cout << "Invalid option selected" << std::endl;
 			break;
 		}
 	}
 
 	void UserInterface() {
+
 		while (process < 2) {
+
 			setOptions(_Options);
 
 			if (process == 0) {
+
 				displayMenu(0, 2);
 			}
 			else {
+
 				displayMenu(3, 8);
 			}
 		}
@@ -87,6 +116,8 @@ private:
 		"->  Register",
 		"->  Add New Medical Report",
 		"->  Display Medical Report",
+		"->  Update Medical Report",
+		"->  Delete Medical Report",
 		"->  Display Vaccine Report",
 		"->  Print Medical Report",
 		"->  Print Vaccine Report",
@@ -99,58 +130,126 @@ private:
 	Vaccine_UI _vaccines;
 
 	int process = 0;
+	string_vector children;
+	str ID;
+
 public:
+	//constructor
 	Doctor() {
+
 		UserType = "doctor";
 	}
 
+	//class ui
 	void UserInterface() {
+
 		while (process < 2) {
+
 			setOptions(_Options);
 
 			if (process == 0) {
+
 				displayMenu(0, 2);
 			}
 			else {
+
 				displayMenu(3, 8);
 			}
+		}
+
+		return;
+	}
+	//set methood
+	void setChildren() {
+
+		std::vector<std::pair<str, str>> getChildrenNames = Utilities::Database::getUsers();
+
+		for (const auto& pair : getChildrenNames) {
+
+			this -> children.push_back(pair.second);
 		}
 		return;
 	}
 
+	//set method
+	void setID(str iD) { this->ID = iD; }
+
+	//get method
+	str getID() { return this->ID; }
+
+	string_vector getChildren() { return this->children;  }
+
 	void onOptionSelected(int option) override {
+
+		str response;
+
 		switch (option) {
+
 		case 0:
-			_login.login();
+
+			_login.Login();
 			process++;
 			break;
+
 		case 1:
-			_registrations.Register_Doctor_UI();
-			process++;
+
+			_registrations.registerDoctorUI();
+			process = 0;
 			break;
+
 		case 2:
-			_medicals.DisplayMedicalReport();
-			process++;
+
+			_medicals.addMedicalReport();
 			break;
+
 		case 3:
-			_medicals.AddMedicalReport();
-			process++;
+
+			setChildren();
+			_medicals.displayChildren(getChildren(), "display");
 			break;
+
 		case 4:
-			_vaccines.DisplayVaccineReport();
-			process++;
+
+			_medicals.clearScreen();
+			std::cout << std::setw(15) << " " << "Enter User id : " << std::endl;
+			std::getline(std::cin, response);
+			setID(response);
+			_medicals.updateMedicalReport(getID());
 			break;
+
 		case 5:
-			_medicals.PrintMedicalReport();
-			process++;
+
+			_medicals.clearScreen();
+			std::cout << std::setw(15) << " " << "Enter User id : " << std::endl;
+			std::getline(std::cin, response);
+			setID(response);
+			_medicals.deleteMedicalReport(getID());
 			break;
+
 		case 6:
-			_vaccines.PrintVaccineReport();
-			process++;
+
+			setChildren();
+			_vaccines.displayChildren(getChildren(), "display");
 			break;
+
 		case 7:
-			return;
+
+			setChildren();
+			_medicals.displayChildren(getChildren(), "print");
+			break;
+
+		case 8:
+
+			setChildren();
+			_vaccines.displayChildren(getChildren(), "print");
+			break;
+
+		case 9:
+
+			process = 0;
+
 		default:
+
 			std::cout << "Invalid option selected" << std::endl;
 			break;
 		}
@@ -162,8 +261,10 @@ private:
 	string_vector _Options = { "->  Login",
 		"->  Register",
 		"->  Add New Vaccine Report",
-		"->  Display Medical Report",
 		"->  Display Vaccine Report",
+		"->  Update Vaccine Report",
+		"->  Delete Vaccine Report",
+		"->  Display Medical Report",
 		"->  Print Medical Report",
 		"->  Print Vaccine Report",
 		"->  Exit"
@@ -175,6 +276,8 @@ private:
 	Vaccine_UI _vaccines;
 
 	int process = 0;
+	string_vector children;
+	str ID;
 public:
 	Nurse() {
 		UserType = "nurse";
@@ -194,39 +297,96 @@ public:
 		return;
 	}
 
+	//set methood
+	void setChildren() {
+
+		std::vector<std::pair<str, str>> getChildrenNames = Utilities::Database::getUsers();
+
+		for (const auto& pair : getChildrenNames) {
+
+			this->children.push_back(pair.second);
+		}
+		return;
+	}
+
+	//set method
+	void setID(str iD) { this->ID = iD; }
+
+	//get method
+	str getID() { return this->ID; }
+
+	string_vector getChildren() { return this->children; }
+
 	void onOptionSelected(int option) override {
+		str response;
+
 		switch (option) {
+
 		case 0:
-			_login.login();
+
+			_login.Login();
 			process++;
 			break;
+
 		case 1:
-			_registrations.Register_Nurse_UI();
-			process++;
+
+			_registrations.registerNurseUI();
+			process = 0;
 			break;
+
 		case 2:
-			_medicals.DisplayMedicalReport();
-			process++;
+
+			_vaccines.addVaccineReport();
 			break;
+
 		case 3:
-			_vaccines.AddVaccineReport();
-			process++;
+
+			setChildren();
+			_vaccines.displayChildren(getChildren(), "display");
 			break;
+
 		case 4:
-			_vaccines.DisplayVaccineReport();
-			process++;
+
+			_vaccines.clearScreen();
+			std::cout << std::setw(15) << " " << "Enter User id : " << std::endl;
+			std::getline(std::cin, response);
+			setID(response);
+			_vaccines.updateVaccineReport(getID());
 			break;
+
 		case 5:
-			_medicals.PrintMedicalReport();
-			process++;
+
+			_vaccines.clearScreen();
+			std::cout << std::setw(15) << " " << "Enter User id : " << std::endl;
+			std::getline(std::cin, response);
+			setID(response);
+			_vaccines.deleteVaccineReport(getID());
 			break;
+
 		case 6:
-			_vaccines.PrintVaccineReport();
-			process++;
+
+			setChildren();
+			_medicals.displayChildren(getChildren(), "display");
 			break;
+
 		case 7:
-			return;
+
+			setChildren();
+			_medicals.displayChildren(getChildren(), "print");
+			break;
+
+		case 8:
+
+			setChildren();
+			_vaccines.displayChildren(getChildren(), "print");
+			break;
+
+		case 9:
+
+			process = 0;
+
 		default:
+
 			std::cout << "Invalid option selected" << std::endl;
 			break;
 		}
@@ -267,7 +427,7 @@ public:
 			"->   Exit"
 			});
 
-		ProgressBar(1000, 10, 10);
+		progressBar(1000, 10, 10);
 		UI_Utilities::clearScreen();
 
 		displayMenu(0, 4);

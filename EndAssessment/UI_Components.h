@@ -13,23 +13,23 @@ using string_vector = std::vector<std::string>;
 using str = std::string;
 
 void showProgressBar(int progress, int total, int x, int y);
-void ProgressBar(int totalSteps, int x, int y);
+void progressBar(int totalSteps, int x, int y);
 
 class UI_Utilities {
 public:
-	static void clearScreen(); // Clears the console screen
-	static void setTextColor(int color); // Changes the text color in the console
+	static void clearScreen(); 
+	static void setTextColor(int color);
 	static void gotoxy(int x, int y); // Moves the cursor to a specified position in the console
-	static bool Validate(const str& data);
-	static bool ValidateNumber(const str& data);
-	static bool ValidateAddresss(const str& data);
-	static bool ValidateDateOfbirth(const str& data);
+	static bool Validate(const str data);
+	static bool validateNumber(const str data);
+	static bool validateAddresss(const str data);
+	static bool validateDateOfbirth(const str data);
 };
 
 class Menu : public UI_Utilities {
 protected:
-	string_vector options;  // List of menu options
-	int selectedOption;  // Currently selected option
+	string_vector options;  
+	int selectedOption;  
 
 public:
 	void setOptions(const string_vector data);
@@ -42,8 +42,7 @@ public:
 
 class Login_UI : public UI_Utilities {
 public:
-	void login(); // Function to display the login screen
-
+	str Login(); // Function to display the login screen
 private:
 	str username;
 	str password;
@@ -53,9 +52,9 @@ private:
 
 class Registrations_UI : public UI_Utilities {
 private:
-	str child_Info[17];
-	str doctor_Info[17];
-	str nurse_Info[17];
+	string_vector child_Info;
+	string_vector doctor_Info;
+	string_vector nurse_Info;
 	enum RegistrationStep {
 		ID,
 		FirstName,
@@ -73,20 +72,20 @@ private:
 		C_H_Address,
 		CellphoneNumber,
 		Password,
-		Usertype,
-		TotalSteps
+		Usertype
 	};
 
-	bool validateRegistration(const str data[]);
+	bool validateRegistration(const string_vector data);
 public:
-	void Register_Child_UI();
-	void Register_Doctor_UI();
-	void Register_Nurse_UI();
+	void registerChildUI();
+	void registerDoctorUI();
+	void registerNurseUI();
 };
 
 class Medical_UI : public UI_Utilities {
 private:
 	enum MedicalRecordStep {
+		ID,
 		Treatment,
 		Medication,
 		ChildRecordID,
@@ -98,22 +97,26 @@ private:
 		CheckupDate,
 		m_Totalsteps
 	};
-	str medicalForm[m_Totalsteps];
-	bool validateMedicalForm(const str data[]);
-
+	string_vector medicalForm;
+	bool validateMedicalForm(const string_vector data);
+	string_vector childrenOptions;
 public:
 
-	void PrintMedicalReport();
-	void DisplayMedicalReport();
-	void AddMedicalReport();
-	void DeleteMedicalReport(const str& id);
-	void UpdateMedicalReport(const str& id);
+	void printMedicalReport(const str ID, const str userType);
+	void displayMedicalReport(const str ID);
+	void addMedicalReport();
+
+	void deleteMedicalReport(const str ID);
+	void updateMedicalReport(const str ID);
+	void onOptionSelected(int option, const str operation);
+	void displayChildren(const string_vector Options, const str operation);
 };
 
 class Vaccine_UI : public UI_Utilities {
 private:
 
 	enum VaccineRecordStep {
+		ID,
 		Treatment,
 		Vaccine,
 		ChildRecordID,
@@ -125,14 +128,17 @@ private:
 		NextClinicDate,
 		m_Totalsteps
 	};
-	str vaccineForm[m_Totalsteps];
-	bool ValidateVaccineForm(const str data[]);
+	string_vector vaccineForm;
+	bool validateVaccineForm(const string_vector data);
+	string_vector childrenOptions;
 public:
 
-	void PrintVaccineReport();
-	void DisplayVaccineReport();
-	void AddVaccineReport();
+	void printVaccineReport(const str ID, const str userType);
+	void displayVaccineReport(const str ID);
+	void addVaccineReport();
 
-	void DeleteVaccineReport(const str& id);
-	void UpdateVaccineReport(const str& id);
+	void deleteVaccineReport(const str ID);
+	void updateVaccineReport(const str ID);
+	void onOptionSelected(int option, const str operation);
+	void displayChildren(const string_vector Options, const str operation);
 };

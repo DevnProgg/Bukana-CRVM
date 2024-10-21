@@ -1,50 +1,54 @@
 #include "UI_Components.h"
 
 void showProgressBar(int progress, int total, int x, int y) {
-	int barWidth = 50; 
-	int position = progress * barWidth / total; 
+
+	int barWidth = 50;
+	int position = progress * barWidth / total;
 
 	UI_Utilities::gotoxy(y, x);
 	std::cout << "[";
 	for (int i = 0; i < barWidth; ++i) {
 		if (i < position) {
 			UI_Utilities::setTextColor(10);
-			std::cout << "D"; // Filled part of the bar
+			std::cout << "D";
 		}
 		else {
-			std::cout << " "; // Empty part of the bar
+			std::cout << " "; 
 		}
 	}
 	UI_Utilities::setTextColor(7);
-	std::cout << "] " << (progress * 100 / total) << "%\r"; // Show percentage
-	std::cout.flush(); // Ensure the output is displayed immediately
+	std::cout << "] " << (progress * 100 / total) << "%\r"; 
+	std::cout.flush(); 
 }
 
-void ProgressBar(int totalSteps, int x, int y) {
+void progressBar(int totalSteps, int x, int y) {
+
 	int progress = totalSteps;
 	for (int step = 0; step <= progress; ++step) {
-		showProgressBar(step, progress, x , y); // Update the progress bar
+		showProgressBar(step, progress, x, y); 
 	}
 }
 
 void UI_Utilities::clearScreen() {
+
 	std::system("CLS");
 }
 
 void UI_Utilities::setTextColor(int color) {
+
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
 
 void UI_Utilities::gotoxy(int x, int y) {
+
 	COORD coord;
 	coord.X = x;
 	coord.Y = y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-//Menu::Menu(const string_vector& menuoptions) : options(menuoptions), selectedOption(0) {}
-
 void Menu::setOptions(const string_vector data) {
+
 	options = data;
 }
 
@@ -53,6 +57,7 @@ void Menu::onOptionSelected(int option) {
 }
 
 void Menu::displayMenu(const int start, const int end) {
+
 	clearScreen();
 	char key;
 
@@ -90,7 +95,8 @@ void Menu::displayMenu(const int start, const int end) {
 	}
 }
 
-void Login_UI::login() {
+str Login_UI::Login() {
+
 	bool loginSuccess = false;
 
 	while (!loginSuccess) {
@@ -118,7 +124,7 @@ void Login_UI::login() {
 			}
 		}
 
-		ProgressBar(1000, 10, 10);
+		progressBar(1000, 10, 10);
 
 		loginSuccess = validateCredentials(username, password);
 
@@ -131,18 +137,26 @@ void Login_UI::login() {
 	}
 
 	clearScreen();
+	return Utilities::Database::loginUser(username, password);
 }
 
-bool Login_UI::validateCredentials(const str username, const str password) {
-	return (false);
+bool Login_UI::validateCredentials(const str Username, const str Password) {
+
+	str response = Utilities::Database::loginUser(Username, Password);
+	if (response == "fail") {
+		return false;
+	}
+	return (true);
 }
 
-bool UI_Utilities::Validate(const str& data) {
+bool UI_Utilities::Validate(const str data) {
+
 	if (data.size() == 0) return false;
 	return true;
 }
 
-bool UI_Utilities::ValidateNumber(const str& data) {
+bool UI_Utilities::validateNumber(const str data) {
+
 	for (char num : data) {
 		// If any character is not a digit, the cellphone number is not valid
 		if (!std::isdigit(num)) {
@@ -152,8 +166,8 @@ bool UI_Utilities::ValidateNumber(const str& data) {
 	return true;
 }
 
-bool UI_Utilities::ValidateDateOfbirth(const str& data) {
-	// Create an input stream from the DOB string
+bool UI_Utilities::validateDateOfbirth(const str data) {
+
 	std::istringstream iss(data);
 	str month, day, year;
 	string_vector result;
@@ -162,9 +176,7 @@ bool UI_Utilities::ValidateDateOfbirth(const str& data) {
 	if (std::getline(iss, month, '/') &&
 		std::getline(iss, day, '/') &&
 		std::getline(iss, year)) {
-		// Trim leading and trailing spaces from each part
-		// This is necessary because the input string may contain leading or trailing spaces
-		// or spaces between the / and the parts of the dob
+
 		month.erase(0, month.find_first_not_of(" \t")); // Remove leading spaces
 		month.erase(month.find_last_not_of(" \t") + 1); // Remove trailing spaces
 
@@ -184,8 +196,9 @@ bool UI_Utilities::ValidateDateOfbirth(const str& data) {
 	return  !month.empty() && !day.empty() && !year.empty();
 }
 
-bool UI_Utilities::ValidateAddresss(const str& data) {
-	// Create an input stream from the address string
+bool UI_Utilities::validateAddresss(const str data) {
+
+
 	std::istringstream iss(data);
 	str Town, District;
 	string_vector result;
@@ -193,9 +206,6 @@ bool UI_Utilities::ValidateAddresss(const str& data) {
 	// Split the address by commas
 	if (std::getline(iss, Town, ',') &&
 		std::getline(iss, District)) {
-		// Trim leading and trailing spaces from each part
-		// This is necessary because the input string may contain leading or trailing spaces
-		// or spaces between the commas and the parts of the address
 
 		Town.erase(0, Town.find_first_not_of(" \t")); // Remove leading spaces
 		Town.erase(Town.find_last_not_of(" \t") + 1); // Remove trailing spaces
@@ -209,82 +219,46 @@ bool UI_Utilities::ValidateAddresss(const str& data) {
 	return !Town.empty() && !District.empty();
 }
 
-bool Registrations_UI::validateRegistration(const str data[]) {
+bool Registrations_UI::validateRegistration(const string_vector data) {
+
 	return Utilities::Database::addUser(data);
 }
 
-void Registrations_UI::Register_Child_UI() {
+void Registrations_UI::registerChildUI() {
 	bool registrationSuccess = false;
-	int progress = 1;
 
 	while (!registrationSuccess) {
 		clearScreen();
-
 		setTextColor(7); // White color
 		std::cout << std::setw(10) << " ||"
 			<< "========================= Child Registration =========================" << std::endl;
 
-		while (progress < TotalSteps) {
-			bool isValidInput = false;
-			std::string promptMessage;
+		std::cout << std::setw(13) << " " << "Fullname: "
 
-			switch (progress) {
-			case FirstName: promptMessage = "FirstName: "; break;
-			case MiddleName: promptMessage = "Middlename: "; break;
-			case Surname: promptMessage = "Surname: "; break;
-			case DateOfBirth: promptMessage = "Date of Birth (DD/MM/YYYY): "; break;
-			case MotherName: promptMessage = "Mother Name: "; break;
-			case FatherName: promptMessage = "Father Name: "; break;
-			case Village: promptMessage = "Village: "; break;
-			case Chief: promptMessage = "Chief: "; break;
-			case District: promptMessage = "District: "; break;
-			}
-
-			std::cout << std::setw(10) << " ||" << promptMessage;
-			std::getline(std::cin, child_Info[progress + 1]);
-
-			if (progress == DateOfBirth) {
-				isValidInput = ValidateDateOfbirth(child_Info[progress + 1]);
-			}
-			else {
-				isValidInput = Validate(child_Info[progress + 1]);
-			}
-
-			if (!isValidInput) {
-				setTextColor(4); // Red color
-				std::cout << std::setw(10) << " " << "You can't leave it empty. Try again!" << std::endl;
-				(void)_getch();
-				clearScreen();
-				setTextColor(7); //white color
-				continue;
-			}
-
-			progress++;
-		}
-
-		child_Info[ID] = Utilities::IDGenerator(child_Info[FirstName], child_Info[Surname], child_Info[DateOfBirth], Utilities::Database::countUsers() + 1);
+		// Fill additional information (same as before)
+		child_Info[0] = Utilities::IDGenerator(child_Info[FirstName], child_Info[Surname], child_Info[DateOfBirth], Utilities::Database::countUsers() + 1);
 		child_Info[Title] = "null";
 		child_Info[PracticeNumber] = "null";
 		child_Info[Resident_H_C] = "null";
 		child_Info[C_H_Address] = "null";
 		child_Info[CellphoneNumber] = "null";
-		child_Info[Password] = Utilities::PasswordGenerator(child_Info[FirstName]);
+		child_Info[Password] = Utilities::passwordGenerator(child_Info[FirstName]);
 		child_Info[Usertype] = "child";
 
 		clearScreen();
-		ProgressBar(1000 , 10, 10);
+		//ProgressBar(1000, 10, 10); // Ensure ProgressBar() works as intended
 
 		registrationSuccess = validateRegistration(child_Info);
 
 		if (!registrationSuccess) {
 			setTextColor(4); // Red color
 			std::cout << std::setw(10) << " " << "Registration was not successful. Please try again." << std::endl;
-			(void)_getch(); // Wait for user to press a key before retrying
-			progress = 1; // Restart the registration process
+			(void)_getch();
+			progress = 0; // Reset progress to start over
 		}
 		else {
-			setTextColor(10);
-			std::cout << std::setw(10) << " " << "Registration Was Successful." << std::endl;
+			setTextColor(10); // Green color
+			std::cout << std::setw(10) << " " << "Registration was successful." << std::endl;
 			std::cout << std::setw(10) << " " << "Your Username is " << child_Info[FirstName] << std::endl;
 			std::cout << std::setw(10) << " " << "Your Password is " << child_Info[Password] << std::endl;
 			(void)_getch();
@@ -294,9 +268,11 @@ void Registrations_UI::Register_Child_UI() {
 	clearScreen();
 }
 
-void Registrations_UI::Register_Doctor_UI() {
+
+void Registrations_UI::registerDoctorUI() {
+
 	bool registrationSuccess = false;
-	int progress = 1;
+	int progress = 0;
 
 	while (!registrationSuccess) {
 		clearScreen();
@@ -310,12 +286,22 @@ void Registrations_UI::Register_Doctor_UI() {
 			std::string promptMessage;
 
 			switch (progress) {
+			case ID: continue; break;
 			case FirstName: promptMessage = "FirstName: "; break;
+			case Title: continue; break;
 			case Surname: promptMessage = "Surname: "; break;
+			case DateOfBirth: continue; break;
+			case MotherName: continue; break;
+			case FatherName: continue; break;
+			case Village: continue; break;
+			case Chief: continue; break;
+			case District: continue; break;
 			case PracticeNumber: promptMessage = "Practice Number: "; break;
 			case Resident_H_C: promptMessage = "Resident Hospital/ Clinic: "; break;
 			case C_H_Address: promptMessage = "Clinic / Hospital Address (Town, District)"; break;
 			case CellphoneNumber: promptMessage = "Cellphone Number"; break;
+			case Password: continue; break;
+			case Usertype: continue; break;
 			}
 
 			std::cout << std::setw(10) << " ||" // Aligning input prompt to the right
@@ -324,13 +310,13 @@ void Registrations_UI::Register_Doctor_UI() {
 
 			// Validate the input based on the field type
 			if (progress == PracticeNumber) {
-				isValidInput = ValidateNumber(doctor_Info[progress + 1]);
+				isValidInput = validateNumber(doctor_Info[progress + 1]);
 			}
 			else if (progress == C_H_Address) {
-				isValidInput = ValidateAddresss(doctor_Info[progress + 1]);
+				isValidInput = validateAddresss(doctor_Info[progress + 1]);
 			}
 			else if (progress == CellphoneNumber) {
-				isValidInput = ValidateNumber(doctor_Info[progress + 1]);
+				isValidInput = validateNumber(doctor_Info[progress + 1]);
 			}
 			else {
 				isValidInput = Validate(doctor_Info[progress + 1]);
@@ -357,11 +343,11 @@ void Registrations_UI::Register_Doctor_UI() {
 		doctor_Info[Village] = "null";
 		doctor_Info[Chief] = "null";
 		doctor_Info[District] = "null";
-		doctor_Info[Password] = Utilities::PasswordGenerator(doctor_Info[FirstName]);
+		doctor_Info[Password] = Utilities::passwordGenerator(doctor_Info[FirstName]);
 		doctor_Info[Usertype] = "doctor";
 
 		clearScreen();
-		ProgressBar(1000, 10, 10);
+		progressBar(1000, 10, 10);
 
 		registrationSuccess = validateRegistration(doctor_Info);
 
@@ -383,9 +369,10 @@ void Registrations_UI::Register_Doctor_UI() {
 	clearScreen();
 }
 
-void Registrations_UI::Register_Nurse_UI() {
+void Registrations_UI::registerNurseUI() {
+
 	bool registrationSuccess = false;
-	int progress = 1;
+	int progress = 0;
 
 	while (!registrationSuccess) {
 		clearScreen();
@@ -399,13 +386,22 @@ void Registrations_UI::Register_Nurse_UI() {
 			std::string promptMessage;
 
 			switch (progress) {
+			case ID: continue; break;
 			case Title: promptMessage = "Title (defualt = Sister): "; break;
 			case FirstName: promptMessage = "FirstName: "; break;
 			case Surname: promptMessage = "Surname: "; break;
+			case DateOfBirth: continue; break;
+			case MotherName: continue; break;
+			case FatherName: continue; break;
+			case Village: continue; break;
+			case Chief: continue; break;
+			case District: continue; break;
 			case PracticeNumber: promptMessage = "Practice Number: "; break;
 			case Resident_H_C: promptMessage = "Resident Hospital/ Clinic: "; break;
 			case C_H_Address: promptMessage = "Clinic / Hospital Address (Town, District)"; break;
 			case CellphoneNumber: promptMessage = "Cellphone Number"; break;
+			case Password: continue; break;
+			case Usertype: continue; break;
 			}
 
 			std::cout << std::setw(10) << " ||" // Aligning input prompt to the right
@@ -417,13 +413,13 @@ void Registrations_UI::Register_Nurse_UI() {
 				nurse_Info[progress] = "Sister";
 			}
 			if (progress == PracticeNumber) {
-				isValidInput = ValidateNumber(nurse_Info[progress + 1]);
+				isValidInput = validateNumber(nurse_Info[progress + 1]);
 			}
 			else if (progress == C_H_Address) {
-				isValidInput = ValidateAddresss(nurse_Info[progress + 1]);
+				isValidInput = validateAddresss(nurse_Info[progress + 1]);
 			}
 			else if (progress == CellphoneNumber) {
-				isValidInput = ValidateNumber(nurse_Info[progress + 1]);
+				isValidInput = validateNumber(nurse_Info[progress + 1]);
 			}
 			else {
 				isValidInput = Validate(nurse_Info[progress + 1]);
@@ -450,11 +446,11 @@ void Registrations_UI::Register_Nurse_UI() {
 		nurse_Info[Village] = "null";
 		nurse_Info[Chief] = "null";
 		nurse_Info[District] = "null";
-		nurse_Info[Password] = Utilities::PasswordGenerator(nurse_Info[FirstName]);
+		nurse_Info[Password] = Utilities::passwordGenerator(nurse_Info[FirstName]);
 		nurse_Info[Usertype] = "nurse";
 
 		clearScreen();
-		ProgressBar(1000, 10, 10);
+		progressBar(1000, 10, 10);
 
 		registrationSuccess = validateRegistration(nurse_Info);
 
@@ -476,13 +472,76 @@ void Registrations_UI::Register_Nurse_UI() {
 	clearScreen();
 }
 
-void Medical_UI::PrintMedicalReport() {
-	//todo code implementation
+void Medical_UI::onOptionSelected(int option, const str operation) {
+
+	if (operation == "print") {
+		std::vector<std::pair<str, str>> _options = Utilities::Database::getUsers();
+		Utilities::printMedicalReport(_options[option].first);
+		return;
+	}
+
+	if (operation == "display") {
+		std::vector<std::pair<str, str>> _options = Utilities::Database::getUsers();
+		Medical_UI::displayMedicalReport(_options[option].first);
+		return;
+	}
 }
 
-void Medical_UI::DisplayMedicalReport() {
+void Medical_UI::displayChildren(const string_vector Options, const str operation) {
+
+	clearScreen();
+	char key;
+	int selectedOption = 0;
+
+	while (true) {
+		for (int i = 0; i < Options.size(); ++i) {
+			gotoxy(10, 5 + i);
+			setTextColor(i == selectedOption ? 10 : 7);
+			std::cout << Options[i];
+		}
+
+		key = _getch();
+
+		if (key == -32) {
+			key = _getch();
+			if (key == 72 && selectedOption > 0) {
+				selectedOption--;
+			}
+			if (key == 80 && selectedOption < Options.size() - 1) {
+				selectedOption++;
+			}
+		}
+
+		if (key == 13) {
+			clearScreen();
+			onOptionSelected(selectedOption, operation);
+			break;
+		}
+	}
+}
+
+void Medical_UI::printMedicalReport(const str ID, const str userType) {
+
+	if (userType == "child") {
+		Utilities::printMedicalReport(ID);
+	}
+
+	std::vector<std::pair<str, str>> _options = Utilities::Database::getUsers();
+
+	for (const auto& pair : _options) {
+		childrenOptions.push_back(pair.second);
+	}
+	displayChildren(childrenOptions, "print");
+	return;
+}
+
+void Medical_UI::displayMedicalReport(const str ID) {
+
 	bool showData = false;
 	char response;
+	string_vector childData = Utilities::Database::getUserInfo(ID);
+	string_vector medicalReports = Utilities::Database::getMedicalReports(ID);
+	str id, treatment, medication, childId, weight, height, doctor, clinic, consulationDate, checkupDate;
 
 	while (showData) {
 		clearScreen();
@@ -490,14 +549,19 @@ void Medical_UI::DisplayMedicalReport() {
 		std::cout << "|" << std::setw(10) << " " << "Child's Medical Report" << std::endl;
 		std::cout << "|" << "------------------------------------------------------------------------------------------------------------" << std::endl;
 
-		std::cout << std::setw(11) << " " << "Child Fullname:    " << std::endl;
-		std::cout << std::setw(11) << " " << "Guardian/Parents Name(s):      " << std::endl;
-		std::cout << std::setw(11) << " " << "Date Of Birth:     " << std::endl;
+		std::cout << std::setw(11) << " " << "Child Fullname:    " << childData[0] << " " << childData[2] << " " << childData[3] << std::endl;
+		std::cout << std::setw(11) << " " << "Guardian/Parents Name(s):      " << childData[childData.size()] << std::endl;
+		std::cout << std::setw(11) << " " << "Date Of Birth:     " << childData[4] << std::endl;
 		std::cout << std::setw(11) << " " << "Medical Consultations: " << std::endl;
+		for (int i = 0; i < medicalReports.size(); ++i) {
+			std::stringstream ss(medicalReports[i]);
 
-		//for loop
+			if (std::getline(ss, id, ',') && std::getline(ss, treatment, ',') && std::getline(ss, medication, ',') && std::getline(ss, childId, ',') && std::getline(ss, weight, ',') && std::getline(ss, height, ',') && std::getline(ss, doctor, ',') && std::getline(ss, clinic, ',') && std::getline(ss, consulationDate, ',')) {
+				std::cout << std::setw(12) << " " << "-> Consultation " << i + 1 << ": " << treatment << "| Medication: " << medication << "| Weight: " << weight << "kg | Height: " << height << "cm | Doctor: " << doctor << " | Clinic: " << clinic << " | Date: " << consulationDate << std::endl;
+			}
+		}
 
-		std::cout << std::setw(11) << " " << "Date for next Checkup:  " << std::endl;
+		std::cout << std::setw(11) << " " << "Date for next Checkup:  " << checkupDate << std::endl;
 
 		std::cout << "\n Press ENTER to go back to Main Menu ";
 		(void)_getch();
@@ -506,17 +570,22 @@ void Medical_UI::DisplayMedicalReport() {
 	}
 	//hide data
 	std::cout << "-------------------------------------------------------------------------------------------------------------" << std::endl;
-	std::cout << "|" << std::setw(10) << " " << "Child's Vaccine Report" << std::endl;
+	std::cout << "|" << std::setw(10) << " " << "Child's Medical Report" << std::endl;
 	std::cout << "|" << "------------------------------------------------------------------------------------------------------------" << std::endl;
-
-	std::cout << std::setw(11) << " " << "Child Fullname:    " << std::endl;
-	std::cout << std::setw(11) << " " << "Guardian/Parents Name(s):      " << std::endl;
+	std::cout << std::setw(11) << " " << "Child Fullname:    " << Utilities::DataMasking::fixedPositionMask(childData[0], 1, childData[0].length()) << " " << Utilities::DataMasking::fullMask(childData[2]) << " " << Utilities::DataMasking::fixedPositionMask(childData[3], 0, childData[3].length() - 3) << std::endl;
+	std::cout << std::setw(11) << " " << "Guardian/Parents Name(s):      " << Utilities::DataMasking::fixedPositionMask(childData[childData.size()], 1, childData[childData.size()].length()) << std::endl;
 	std::cout << std::setw(11) << " " << "Date Of Birth:     " << std::endl;
 	std::cout << std::setw(11) << " " << "Medical Consultations: " << std::endl;
 
-	//for loop
+	for (int i = 0; i < medicalReports.size(); ++i) {
+		std::stringstream ss(medicalReports[i]);
 
-	std::cout << std::setw(11) << " " << "Date for next Checkup:  " << std::endl;
+		if (std::getline(ss, id, ',') && std::getline(ss, treatment, ',') && std::getline(ss, medication, ',') && std::getline(ss, childId, ',') && std::getline(ss, weight, ',') && std::getline(ss, height, ',') && std::getline(ss, doctor, ',') && std::getline(ss, clinic, ',') && std::getline(ss, consulationDate, ',')) {
+			std::cout << std::setw(12) << " " << "-> Consultation " << i + 1 << ": " << Utilities::DataMasking::fullMask(treatment) << "| Medication: " << medication << "| Weight: " << weight << "kg | Height: " << height << "cm | Doctor: " << doctor << " | Clinic: " << clinic << " | Date: " << consulationDate << std::endl;
+		}
+	}
+
+	std::cout << std::setw(11) << " " << "Date for next Checkup:  " << checkupDate <<  std::endl;
 
 	std::cout << "\n Show Sensitive Informtion? (Y/N):  ";
 	std::cin >> response;
@@ -524,11 +593,13 @@ void Medical_UI::DisplayMedicalReport() {
 	if (response == 'y' || response == 'Y') showData = true;
 	else showData = false;
 }
-bool Medical_UI::validateMedicalForm(const str data[]) {
+bool Medical_UI::validateMedicalForm(const string_vector data) {
+
 	return Utilities::Database::addMedicalReport(data);
 }
 
-void Medical_UI::AddMedicalReport() {
+void Medical_UI::addMedicalReport() {
+
 	bool registrationSuccess = false;
 	int progress = 0;
 
@@ -561,7 +632,7 @@ void Medical_UI::AddMedicalReport() {
 
 			// Validate the input based on the field type
 			if (progress == ConsultationDate || progress == CheckupDate) {
-				isValidInput = ValidateDateOfbirth(medicalForm[progress + 1]);
+				isValidInput = validateDateOfbirth(medicalForm[progress + 1]);
 			}
 			else if (progress == ChildRecordID) {
 				isValidInput = Utilities::Database::checkIfExists(medicalForm[progress + 1]);
@@ -575,21 +646,23 @@ void Medical_UI::AddMedicalReport() {
 				std::cout << std::setw(10) << " " << "You can't leave it empty. Try again!" << std::endl;
 				(void)_getch(); // Wait for user to acknowledge the error
 				clearScreen();
-				setTextColor(7); //white color
-				continue; // Retry the same input
+				setTextColor(7);
+				continue;
 			}
 
-			progress++; // Move to the next step if input is valid
+			progress++;
 		}
 		clearScreen();
-		ProgressBar(1000, 10, 10);
+		medicalForm[ID] = std::to_string(rand() % 1000000 + 1) + medicalForm[ChildRecordID];
+
+		progressBar(1000, 10, 10);
 		registrationSuccess = validateMedicalForm(medicalForm);
 
 		if (!registrationSuccess) {
 			setTextColor(4); // Red color
 			std::cout << std::setw(10) << " " << "Process was not successful. Please try again." << std::endl;
 			(void)_getch(); // Wait for user to press a key before retrying
-			progress = 0; // Restart the registration process
+			progress = 0;
 		}
 		else {
 			setTextColor(12);
@@ -602,19 +675,26 @@ void Medical_UI::AddMedicalReport() {
 	return;
 }
 
-void Medical_UI::DeleteMedicalReport(const str& id) {
-	//Todo: add functionality
+void Medical_UI::deleteMedicalReport(const str ID) {
+
+	Utilities::Database::deleteMedicalReport(ID);
+	return;
 }
 
-void Medical_UI::UpdateMedicalReport(const str& id) {
-	//Todo: add functionality
+void Medical_UI::updateMedicalReport(const str ID) {
+
+	deleteMedicalReport(ID);
+	addMedicalReport();
+	return;
 }
 
-bool Vaccine_UI::ValidateVaccineForm(const str data[]) {
+bool Vaccine_UI::validateVaccineForm(const string_vector data) {
+
 	return Utilities::Database::addVaccineReport(data);
 }
 
-void Vaccine_UI::AddVaccineReport() {
+void Vaccine_UI::addVaccineReport() {
+
 	bool registrationSuccess = false;
 	int progress = 0;
 
@@ -647,7 +727,7 @@ void Vaccine_UI::AddVaccineReport() {
 
 			// Validate the input based on the field type
 			if (progress == ClinicDate || progress == NextClinicDate) {
-				isValidInput = ValidateDateOfbirth(vaccineForm[progress + 1]);
+				isValidInput = validateDateOfbirth(vaccineForm[progress + 1]);
 			}
 			else if (progress == ChildRecordID) {
 				isValidInput = Utilities::Database::checkIfExists(vaccineForm[progress + 1]);
@@ -669,9 +749,10 @@ void Vaccine_UI::AddVaccineReport() {
 		}
 
 		clearScreen();
-		ProgressBar(1000, 10, 10);
+		vaccineForm[ID] = std::to_string(rand() % 1000000 + 1) + vaccineForm[ChildRecordID];
 
-		registrationSuccess = ValidateVaccineForm(vaccineForm);
+		progressBar(1000, 10, 10);
+		registrationSuccess = validateVaccineForm(vaccineForm);
 
 		if (!registrationSuccess) {
 			setTextColor(4); // Red color
@@ -689,14 +770,27 @@ void Vaccine_UI::AddVaccineReport() {
 	clearScreen();
 }
 
-void Vaccine_UI::PrintVaccineReport() {
+void Vaccine_UI::printVaccineReport(const str ID, const str userType) {
+
+	if (userType == "child") {
+		Utilities::printMedicalReport(ID);
+	}
+
+	std::vector<std::pair<str, str>> _options = Utilities::Database::getUsers();
+
+	for (const auto& pair : _options) {
+		childrenOptions.push_back(pair.second);
+	}
+	return;
 }
 
-void Vaccine_UI::DisplayVaccineReport() {
-	//todo get vaccine
-	//Utilities _Utilities;
+void Vaccine_UI::displayVaccineReport(const str ID) {
+
 	bool showData = false;
 	char response;
+	string_vector childData = Utilities::Database::getUserInfo(ID);
+	string_vector VaccineReports = Utilities::Database::getVaccineReports(ID);
+	str id, treatment, vaccine, childId, weight, height, nurse, clinic, clinicDate, nextClinicDate;
 
 	while (showData) {
 		clearScreen();
@@ -704,14 +798,20 @@ void Vaccine_UI::DisplayVaccineReport() {
 		std::cout << "|" << std::setw(10) << " " << "Child's Vaccine Report" << std::endl;
 		std::cout << "|" << "------------------------------------------------------------------------------------------------------------" << std::endl;
 
-		std::cout << std::setw(11) << " " << "Child Fullname:    " << std::endl;
-		std::cout << std::setw(11) << " " << "Guardian/Parents Name(s):      " << std::endl;
-		std::cout << std::setw(11) << " " << "Date Of Birth:     " << std::endl;
+		std::cout << std::setw(11) << " " << "Child Fullname:    " << childData[0] << " " << childData[2] << " " << childData[3] << std::endl;
+		std::cout << std::setw(11) << " " << "Guardian/Parents Name(s):      " << childData[childData.size()] << std::endl;
+		std::cout << std::setw(11) << " " << "Date Of Birth:     " << childData[4] << std::endl;
 		std::cout << std::setw(11) << " " << "Vaccinations Administered: " << std::endl;
 
-		//for loop
+		for (int i = 0; i < VaccineReports.size(); ++i) {
+			std::stringstream ss(VaccineReports[i]);
 
-		std::cout << std::setw(11) << " " << "Date for next Vaccine:  " << std::endl;
+			if (std::getline(ss, id, ',') && std::getline(ss, treatment, ',') && std::getline(ss, vaccine, ',') && std::getline(ss, childId, ',') && std::getline(ss, weight, ',') && std::getline(ss, height, ',') && std::getline(ss, nurse, ',') && std::getline(ss, clinic, ',') && std::getline(ss, clinicDate, ',')) {
+				std::cout << std::setw(12) << " " << "-> Consultation " << i + 1 << ": " << treatment << "| Medication: " << vaccine << "| Weight: " << weight << "kg | Height: " << height << "cm | Nurse: " << nurse << " | Clinic: " << clinic << " | Date: " << clinicDate << std::endl;
+			}
+		}
+
+		std::cout << std::setw(11) << " " << "Date for next Vaccine:  " << NextClinicDate << std::endl;
 
 		std::cout << "\n Press ENTER to go back to Main Menu ";
 		(void)_getch();
@@ -723,14 +823,20 @@ void Vaccine_UI::DisplayVaccineReport() {
 	std::cout << "|" << std::setw(10) << " " << "Child's Vaccine Report" << std::endl;
 	std::cout << "|" << "------------------------------------------------------------------------------------------------------------" << std::endl;
 
-	std::cout << std::setw(11) << " " << "Child Fullname:    " << std::endl;
-	std::cout << std::setw(11) << " " << "Guardian/Parents Name(s):      " << std::endl;
+	std::cout << std::setw(11) << " " << "Child Fullname:    " << Utilities::DataMasking::fixedPositionMask(childData[0], 1, childData[0].length()) << " " << Utilities::DataMasking::fullMask(childData[2]) << " " << Utilities::DataMasking::fixedPositionMask(childData[3], 0, childData[3].length() - 3) << std::endl;
+	std::cout << std::setw(11) << " " << "Guardian/Parents Name(s):      " << Utilities::DataMasking::fixedPositionMask(childData[childData.size()], 1, childData[childData.size()].length()) << std::endl;
 	std::cout << std::setw(11) << " " << "Date Of Birth:     " << std::endl;
 	std::cout << std::setw(11) << " " << "Vaccinations Administered: " << std::endl;
 
-	//for loop
+	for (int i = 0; i < VaccineReports.size(); ++i) {
+		std::stringstream ss(VaccineReports[i]);
 
-	std::cout << std::setw(11) << " " << "Date for next Vaccine:  " << std::endl;
+		if (std::getline(ss, id, ',') && std::getline(ss, treatment, ',') && std::getline(ss, vaccine, ',') && std::getline(ss, childId, ',') && std::getline(ss, weight, ',') && std::getline(ss, height, ',') && std::getline(ss, nurse, ',') && std::getline(ss, clinic, ',') && std::getline(ss, clinicDate, ',')) {
+			std::cout << std::setw(12) << " " << "-> Consultation " << i + 1 << ": " << Utilities::DataMasking::fullMask(treatment) << "| Medication: " << vaccine << "| Weight: " << weight << "kg | Height: " << height << "cm | Nurse: " << nurse << " | Clinic: " << clinic << " | Date: " << clinicDate << std::endl;
+		}
+	}
+
+	std::cout << std::setw(11) << " " << "Date for next Vaccine:  " << NextClinicDate << std::endl;
 
 	std::cout << "\n Show Sensitive Informtion? (Y/N):  ";
 	std::cin >> response;
@@ -738,7 +844,62 @@ void Vaccine_UI::DisplayVaccineReport() {
 	if (response == 'y' || response == 'Y') showData = true;
 	else showData = false;
 }
-void Vaccine_UI::DeleteVaccineReport(const str& id) {
+
+void Vaccine_UI::deleteVaccineReport(const str ID) {
+
+	Utilities::Database::deleteVaccineReport(ID);
+	return;
 }
-void Vaccine_UI::UpdateVaccineReport(const str& id) {
+
+void Vaccine_UI::updateVaccineReport(const str ID) {
+
+	deleteVaccineReport(ID);
+	addVaccineReport();
+	return;
+}
+
+void Vaccine_UI::onOptionSelected(int option, const str operation) {
+	if (operation == "print") {
+		std::vector<std::pair<str, str>> _options = Utilities::Database::getUsers();
+		Utilities::printMedicalReport(_options[option].first);
+		return;
+	}
+
+	if (operation == "display") {
+		std::vector<std::pair<str, str>> _options = Utilities::Database::getUsers();
+		Vaccine_UI::displayVaccineReport(_options[option].first);
+		return;
+	}
+}
+
+void Vaccine_UI::displayChildren(const string_vector Options, const str operation) {
+	clearScreen();
+	char key;
+	int selectedOption = 0;
+
+	while (true) {
+		for (int i = 0; i < Options.size(); ++i) {
+			gotoxy(10, 5 + i);
+			setTextColor(i == selectedOption ? 10 : 7);
+			std::cout << Options[i];
+		}
+
+		key = _getch();
+
+		if (key == -32) {
+			key = _getch();
+			if (key == 72 && selectedOption > 0) {
+				selectedOption--;
+			}
+			if (key == 80 && selectedOption < Options.size() - 1) {
+				selectedOption++;
+			}
+		}
+
+		if (key == 13) {
+			clearScreen();
+			onOptionSelected(selectedOption, operation);
+			break;
+		}
+	}
 }
